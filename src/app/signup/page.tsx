@@ -1,30 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import Image from "next/image";
+
+type Campus = { id: string; name: string };
 
 export default function SignUpPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [isNewChristian, setIsNewChristian] = useState(false);
+  const [campusId, setCampusId] = useState("");
+  const [campuses, setCampuses] = useState<Campus[]>([]);
   const [status, setStatus] = useState<"idle" | "loading" | "sent" | "error">(
     "idle"
   );
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!isNewChristian || campuses.length > 0) return;
+    fetch("/api/pco/campuses")
+      .then((r) => r.json())
+      .then((data) => setCampuses(data.campuses ?? []))
+      .catch(() => setCampuses([]));
+  }, [isNewChristian, campuses.length]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus("loading");
     setError("");
 
+    const campusName = campuses.find((c) => c.id === campusId)?.name ?? "";
+
     const supabase = createClient();
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName },
+        data: {
+          full_name: fullName,
+          phone: phone || null,
+          is_new_christian: isNewChristian,
+          pco_campus_id: isNewChristian ? campusId || null : null,
+          pco_campus_name: isNewChristian ? campusName || null : null,
+        },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
@@ -33,6 +55,25 @@ export default function SignUpPage() {
       setError(signUpError.message);
       setStatus("error");
       return;
+    }
+
+    // Sync to Planning Center as a "New Christian" — best-effort, never
+    // blocks the sign-up flow itself if it fails.
+    if (isNewChristian && data.user) {
+      const [firstName, ...rest] = fullName.trim().split(" ");
+      fetch("/api/signup/sync-pco", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: data.user.id,
+          firstName: firstName || fullName,
+          lastName: rest.join(" ") || "",
+          email,
+          phone: phone || null,
+          campusId: campusId || null,
+          campusName: campusName || null,
+        }),
+      }).catch(() => null);
     }
 
     setStatus("sent");
@@ -98,6 +139,16 @@ export default function SignUpPage() {
           />
         </label>
         <label className="flex flex-col gap-1.5 font-sans text-sm text-brown">
+          Phone
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="04xx xxx xxx"
+            className="rounded-lg border border-cream-2 px-3 py-2.5 text-midnight focus:outline-none focus:ring-2 focus:ring-teal/20"
+          />
+        </label>
+        <label className="flex flex-col gap-1.5 font-sans text-sm text-brown">
           Password
           <input
             required
@@ -108,6 +159,38 @@ export default function SignUpPage() {
             className="rounded-lg border border-cream-2 px-3 py-2.5 text-midnight focus:outline-none focus:ring-2 focus:ring-teal/20"
           />
         </label>
+
+        <label className="flex items-start gap-2.5 font-sans text-sm text-brown">
+          <input
+            type="checkbox"
+            checked={isNewChristian}
+            onChange={(e) => setIsNewChristian(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-cream-2"
+          />
+          <span>I&rsquo;m new to Futures Church / new to following Jesus.</span>
+        </label>
+
+        {isNewChristian && (
+          <label className="flex flex-col gap-1.5 font-sans text-sm text-brown">
+            Which campus?
+            <select
+              required
+              value={campusId}
+              onChange={(e) => setCampusId(e.target.value)}
+              className="rounded-lg border border-cream-2 bg-white px-3 py-2.5 text-midnight focus:outline-none focus:ring-2 focus:ring-teal/20"
+            >
+              <option value="" disabled>
+                {campuses.length ? "Select a campus" : "Loading campuses…"}
+              </option>
+              {campuses.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+
         {error && <p className="font-sans text-sm text-copper">{error}</p>}
         <button
           type="submit"
