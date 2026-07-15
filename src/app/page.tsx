@@ -6,12 +6,21 @@ import SiteFooter from "./components/site-footer";
 
 export default async function Home() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const { data: videos } = await supabase
     .from("videos")
     .select("title, order_index")
     .eq("published", true)
     .order("order_index")
     .limit(3);
+
+  // Signed-out visitors get a preview of the session titles to hook them in,
+  // but clicking through sends them to sign up rather than straight into a
+  // video (the proxy would bounce them there anyway) — signed-in users go
+  // straight to the real videos list.
+  const sessionsHref = user ? "/videos" : "/signup";
 
   const washes = [
     { wash: "bg-wash-sky", icon: "text-teal" },
@@ -92,7 +101,7 @@ export default async function Home() {
       <section className="mx-auto w-full max-w-5xl px-6 pb-24">
         <div className="mb-3.5 flex items-baseline justify-between">
           <p className="label-caps">The sessions</p>
-          <Link href="/videos" className="flex items-center gap-1 font-sans text-sm text-brown hover:text-copper transition-colors">
+          <Link href={sessionsHref} className="flex items-center gap-1 font-sans text-sm text-brown hover:text-copper transition-colors">
             See all <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -100,7 +109,7 @@ export default async function Home() {
           {sessions.map((v) => (
             <Link
               key={v.n}
-              href="/videos"
+              href={sessionsHref}
               className="flex flex-col overflow-hidden rounded-xl bg-white shadow-[0_1px_5px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_6px_18px_rgba(0,0,0,0.08)]"
             >
               <div className={`flex h-[120px] items-center justify-center ${v.wash}`}>

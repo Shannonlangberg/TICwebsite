@@ -35,9 +35,13 @@ export async function proxy(request: NextRequest) {
   );
 
   if (isProtected && !user) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("next", request.nextUrl.pathname);
-    return NextResponse.redirect(loginUrl);
+    // Send first-time visitors to sign up rather than log in — most people
+    // hitting a protected /videos link from the home page or nav haven't
+    // created an account yet. The sign-up page itself links back to log in
+    // for anyone who already has one.
+    const signupUrl = new URL("/signup", request.url);
+    signupUrl.searchParams.set("next", request.nextUrl.pathname);
+    return NextResponse.redirect(signupUrl);
   }
 
   return response;
