@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
+import Image from "next/image";
 
 function LoginForm() {
   const router = useRouter();
@@ -37,43 +38,52 @@ function LoginForm() {
   }
 
   return (
-    <main className="flex-1 flex flex-col items-center justify-center bg-copper text-thistle-green px-6 py-16">
+    <main className="flex-1 flex flex-col items-center justify-center gap-10 bg-cream px-6 py-16">
+      <Link href="/" className="flex items-center gap-2.5">
+        <Image src="/brand/Futures1.png" alt="Futures Church" width={90} height={20} className="h-6 w-auto" />
+        <span style={{ fontFamily: "var(--font-label)", fontSize: 10, fontWeight: 700, letterSpacing: 2 }} className="text-brown">
+          TIC
+        </span>
+      </Link>
+
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm flex flex-col gap-4"
+        className="flex w-full max-w-sm flex-col gap-4 rounded-xl bg-white p-8 shadow-[0_1px_5px_rgba(0,0,0,0.06)]"
       >
-        <h1 className="font-display text-4xl mb-2">Log in</h1>
-        <label className="font-sans text-sm flex flex-col gap-1">
+        <h1 className="font-display text-[28px] text-midnight">Log in</h1>
+        <p className="-mt-2 mb-1 font-sans text-[13px] text-brown">Good to see you again.</p>
+
+        <label className="flex flex-col gap-1.5 font-sans text-sm text-brown">
           Email
           <input
             required
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-md px-3 py-2 text-judge-gray bg-thistle-green"
+            className="rounded-lg border border-cream-2 px-3 py-2.5 text-midnight focus:outline-none focus:ring-2 focus:ring-teal/20"
           />
         </label>
-        <label className="font-sans text-sm flex flex-col gap-1">
+        <label className="flex flex-col gap-1.5 font-sans text-sm text-brown">
           Password
           <input
             required
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded-md px-3 py-2 text-judge-gray bg-thistle-green"
+            className="rounded-lg border border-cream-2 px-3 py-2.5 text-midnight focus:outline-none focus:ring-2 focus:ring-teal/20"
           />
         </label>
-        {error && <p className="text-laser-lemon text-sm font-sans">{error}</p>}
+        {error && <p className="font-sans text-sm text-copper">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 rounded-full bg-orange px-8 py-3 font-sans font-semibold text-judge-gray hover:bg-laser-lemon transition-colors disabled:opacity-60"
+          className="mt-1.5 rounded-full bg-copper px-8 py-3 font-sans font-semibold text-white transition-colors hover:bg-copper/90 disabled:opacity-60"
         >
           {loading ? "Logging in…" : "Log in"}
         </button>
-        <p className="font-sans text-sm text-center">
+        <p className="text-center font-sans text-sm text-brown">
           Need an account?{" "}
-          <Link href="/signup" className="underline">
+          <Link href="/signup" className="text-copper underline">
             Sign up
           </Link>
         </p>

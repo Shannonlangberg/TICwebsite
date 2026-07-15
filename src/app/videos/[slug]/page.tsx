@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft, Play } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import SiteNav from "../../components/site-nav";
+import SiteFooter from "../../components/site-footer";
 import QuestionForm from "./question-form";
 
 export default async function VideoPage({
@@ -29,39 +32,49 @@ export default async function VideoPage({
     : `https://player.vimeo.com/video/${video.vimeo_id}`;
 
   return (
-    <main className="flex-1 flex flex-col bg-copper text-thistle-green px-6 py-12 md:px-16">
-      <Link href="/videos" className="font-sans text-sm underline mb-6">
-        ← All videos
-      </Link>
-      <h1 className="font-display text-4xl md:text-5xl mb-6">
-        {video.title}
-      </h1>
+    <main className="flex-1 flex flex-col bg-cream">
+      <SiteNav active="videos" />
 
-      <div className="max-w-3xl aspect-video mb-8">
-        <iframe
-          src={embedSrc}
-          className="w-full h-full rounded-xl"
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowFullScreen
-        />
+      <div className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+        <Link
+          href="/videos"
+          className="mb-5 inline-flex items-center gap-1.5 font-sans text-sm text-brown hover:text-copper transition-colors"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> All videos
+        </Link>
+        <h1 className="mb-6 font-display text-[42px] text-midnight">
+          {video.title}
+        </h1>
+
+        <div className="mb-7 flex aspect-video items-center justify-center rounded-xl bg-midnight shadow-[0_1px_5px_rgba(0,0,0,0.06)]">
+          {/* Real embed */}
+          <iframe
+            src={embedSrc}
+            className="h-full w-full rounded-xl"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+
+        {video.description && (
+          <p className="mb-7 max-w-xl font-sans text-brown/90">
+            {video.description}
+          </p>
+        )}
+
+        {user ? (
+          <QuestionForm videoId={video.id} userId={user.id} />
+        ) : (
+          <p className="font-sans text-sm text-brown">
+            <Link href="/login" className="text-copper underline">
+              Log in
+            </Link>{" "}
+            to submit a question.
+          </p>
+        )}
       </div>
 
-      {video.description && (
-        <p className="font-sans max-w-2xl mb-8 text-thistle-green/90">
-          {video.description}
-        </p>
-      )}
-
-      {user ? (
-        <QuestionForm videoId={video.id} userId={user.id} />
-      ) : (
-        <p className="font-sans text-sm">
-          <Link href="/login" className="underline">
-            Log in
-          </Link>{" "}
-          to submit a question.
-        </p>
-      )}
+      <SiteFooter />
     </main>
   );
 }

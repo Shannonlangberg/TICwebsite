@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
 /* Futures Church brand fonts — from FUT002 Brand Guidelines v1.0 */
 @font-face {
@@ -44,16 +45,23 @@
   font-display: swap;
 }
 
+/* NEW — DM Sans (heavier sans weights: labels, buttons, nav) + JetBrains Mono
+   (stats / durations / ids). Matches the FuturesOS product stack. Import moved
+   to the top of the file — @import must precede all non-@charset/@layer rules. */
+
 :root {
-  --background: #f4f2e3; /* thistle-green tint fallback, overridden per-section */
-  --foreground: #50482e; /* judge-gray */
+  /* NEW semantic surface tokens — the redesign is cream app bg / white cards,
+     not full-bleed copper. Keep old --background/--foreground for anything
+     not yet migrated. */
+  --background: #faf9f4; /* cream */
+  --foreground: #50482e; /* brown / body text */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  /* Futures Church brand palette */
+  /* Futures Church brand palette (existing) */
   --color-copper: #c45236;
   --color-orange: #ff8432;
   --color-laser-lemon: #ffff5f;
@@ -65,8 +73,22 @@
   --color-thistle-green: #c5c6a4;
   --color-judge-gray: #50482e;
 
+  /* NEW — product-surface tokens used across the redesigned pages */
+  --color-cream: #faf9f4;
+  --color-cream-2: #f0ede4;
+  --color-midnight: #1c1c16;
+  --color-teal: #4a8fa8;
+  --color-olive: #639922;
+  --color-gold: #c4a44a;
+  --color-wash-mint: #e4f0dc;
+  --color-wash-sky: #dce9f1;
+  --color-wash-butter: #f2ead0;
+  --color-wash-peach: #f2d8cb;
+
   --font-display: "Rhymes Display", "Times New Roman", serif;
-  --font-sans: "Gal Gothic", Arial, Helvetica, sans-serif;
+  --font-sans: "Gal Gothic", "DM Sans", Arial, Helvetica, sans-serif;
+  --font-label: "DM Sans", Arial, Helvetica, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
 }
 
 body {
@@ -78,4 +100,22 @@ body {
 h1, h2, h3, h4 {
   font-family: var(--font-display);
   font-weight: 300;
+}
+
+/* Signature wide-tracked micro-caps label — copper, 10px, 3px tracking.
+   Use via className="label-caps". */
+.label-caps {
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-copper);
+}
+
+/* Universal tactile press-feedback (buttons/cards) per brand motion spec */
+button:not(:disabled):active,
+a[role="button"]:not(:disabled):active {
+  transform: scale(0.985);
+  transition: transform 80ms ease-out;
 }
