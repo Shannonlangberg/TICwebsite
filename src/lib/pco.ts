@@ -124,6 +124,7 @@ export type NewChristianSignup = {
   lastName: string;
   email: string;
   phone?: string | null;
+  gender?: string | null; // "Male" | "Female" — omitted if not provided
   campusId?: string | null;
 };
 
@@ -160,6 +161,9 @@ export async function syncNewChristian(
     const attributes: Record<string, unknown> = {
       membership: NEW_CHRISTIAN_MEMBERSHIP,
     };
+    if (input.gender === "Male" || input.gender === "Female") {
+      attributes.gender = input.gender;
+    }
     const relationships: Record<string, unknown> = {};
     if (input.campusId) {
       relationships.primary_campus = {

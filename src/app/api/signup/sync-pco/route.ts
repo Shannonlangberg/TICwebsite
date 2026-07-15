@@ -17,13 +17,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "Missing fields" }, { status: 400 });
   }
 
-  const { userId, firstName, lastName, email, phone, campusId, campusName } = body;
+  const { userId, firstName, lastName, email, phone, gender, campusId, campusName } = body;
 
   const result = await syncNewChristian({
     firstName,
     lastName,
     email,
     phone: phone || null,
+    gender: gender || null,
     campusId: campusId || null,
   });
 

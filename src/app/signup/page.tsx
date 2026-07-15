@@ -13,6 +13,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [isNewChristian, setIsNewChristian] = useState(false);
+  const [gender, setGender] = useState("");
   const [campusId, setCampusId] = useState("");
   const [campuses, setCampuses] = useState<Campus[]>([]);
   const [status, setStatus] = useState<"idle" | "loading" | "sent" | "error">(
@@ -44,6 +45,7 @@ export default function SignUpPage() {
           full_name: fullName,
           phone: phone || null,
           is_new_christian: isNewChristian,
+          gender: isNewChristian ? gender || null : null,
           pco_campus_id: isNewChristian ? campusId || null : null,
           pco_campus_name: isNewChristian ? campusName || null : null,
         },
@@ -70,6 +72,7 @@ export default function SignUpPage() {
           lastName: rest.join(" ") || "",
           email,
           phone: phone || null,
+          gender: gender || null,
           campusId: campusId || null,
           campusName: campusName || null,
         }),
@@ -171,24 +174,38 @@ export default function SignUpPage() {
         </label>
 
         {isNewChristian && (
-          <label className="flex flex-col gap-1.5 font-sans text-sm text-brown">
-            Which campus?
-            <select
-              required
-              value={campusId}
-              onChange={(e) => setCampusId(e.target.value)}
-              className="rounded-lg border border-cream-2 bg-white px-3 py-2.5 text-midnight focus:outline-none focus:ring-2 focus:ring-teal/20"
-            >
-              <option value="" disabled>
-                {campuses.length ? "Select a campus" : "Loading campuses…"}
-              </option>
-              {campuses.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
+          <>
+            <label className="flex flex-col gap-1.5 font-sans text-sm text-brown">
+              Which campus?
+              <select
+                required
+                value={campusId}
+                onChange={(e) => setCampusId(e.target.value)}
+                className="rounded-lg border border-cream-2 bg-white px-3 py-2.5 text-midnight focus:outline-none focus:ring-2 focus:ring-teal/20"
+              >
+                <option value="" disabled>
+                  {campuses.length ? "Select a campus" : "Loading campuses…"}
                 </option>
-              ))}
-            </select>
-          </label>
+                {campuses.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1.5 font-sans text-sm text-brown">
+              Gender
+              <select
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                className="rounded-lg border border-cream-2 bg-white px-3 py-2.5 text-midnight focus:outline-none focus:ring-2 focus:ring-teal/20"
+              >
+                <option value="">Prefer not to say</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </label>
+          </>
         )}
 
         {error && <p className="font-sans text-sm text-copper">{error}</p>}

@@ -7,6 +7,7 @@ create table if not exists public.profiles (
   full_name text,
   email text,
   phone text,
+  gender text,
   is_new_christian boolean not null default false,
   pco_campus_id text,
   pco_campus_name text,
@@ -18,6 +19,7 @@ create table if not exists public.profiles (
 -- Safe to re-run against an existing database — adds the new signup fields
 -- (phone / new-christian flag / PCO sync info) without touching existing rows.
 alter table public.profiles add column if not exists phone text;
+alter table public.profiles add column if not exists gender text;
 alter table public.profiles add column if not exists is_new_christian boolean not null default false;
 alter table public.profiles add column if not exists pco_campus_id text;
 alter table public.profiles add column if not exists pco_campus_name text;
@@ -45,12 +47,13 @@ language plpgsql
 security definer set search_path = public
 as $$
 begin
-  insert into public.profiles (id, full_name, email, phone, is_new_christian, pco_campus_id, pco_campus_name)
+  insert into public.profiles (id, full_name, email, phone, gender, is_new_christian, pco_campus_id, pco_campus_name)
   values (
     new.id,
     new.raw_user_meta_data ->> 'full_name',
     new.email,
     new.raw_user_meta_data ->> 'phone',
+    new.raw_user_meta_data ->> 'gender',
     coalesce((new.raw_user_meta_data ->> 'is_new_christian')::boolean, false),
     new.raw_user_meta_data ->> 'pco_campus_id',
     new.raw_user_meta_data ->> 'pco_campus_name'
