@@ -29,7 +29,7 @@ export default async function Home() {
       <SiteNav />
 
       <section className="flex flex-col items-center gap-5 px-6 py-24 text-center">
-        <p className="label-caps">The Investigative Course</p>
+        <p className="label-caps">This Is Christianity</p>
         <h1 className="font-display max-w-3xl text-[clamp(40px,6vw,72px)] leading-tight text-midnight">
           Watch. Ask.
           <br />
