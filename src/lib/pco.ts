@@ -95,9 +95,12 @@ export async function getSignupDetails(
             .filter(Boolean)
             .join(", ")
         : null,
-      registrationUrl:
-        attrs.new_registration_url ??
-        `https://futuresaustralia.churchcenter.com/registrations/signups/${signupId}`,
+      // Deliberately NOT using attrs.new_registration_url — that field
+      // points straight at the "/reservations/new" flow, which forces a
+      // login/account-creation step before showing anything. The plain
+      // "/registrations/events/{id}" event page requires no login and lets
+      // people see the event details before deciding to register.
+      registrationUrl: `https://futuresaustralia.churchcenter.com/registrations/events/${signupId}`,
       eventStartsAt: (signupTime?.starts_at as string) ?? null,
       eventEndsAt: (signupTime?.ends_at as string) ?? null,
     };

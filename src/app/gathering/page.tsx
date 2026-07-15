@@ -11,7 +11,7 @@ const DEFAULT_SIGNUP_ID = "3754960";
 const FALLBACK = {
   date: "Sun 30 Aug, 1:30 PM",
   location: "Copper Coast Campus, 4716 Copper Coast Hwy, Kadina SA 5554",
-  url: `https://futuresaustralia.churchcenter.com/registrations/signups/${DEFAULT_SIGNUP_ID}`,
+  url: `https://futuresaustralia.churchcenter.com/registrations/events/${DEFAULT_SIGNUP_ID}`,
 };
 
 function formatEventDate(iso: string | null): string | null {
