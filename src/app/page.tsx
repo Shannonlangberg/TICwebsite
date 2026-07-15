@@ -19,16 +19,19 @@ export default function Home() {
       </header>
 
       <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-24 gap-6">
-        <p className="uppercase tracking-[0.3em] text-sm text-orange font-sans">
-          The Investigative Course
-        </p>
+        <a
+          href="#"
+          className="uppercase tracking-[0.3em] text-sm text-orange font-sans hover:underline"
+        >
+          Learn more ↓
+        </a>
         <h1 className="font-display text-5xl md:text-7xl leading-tight max-w-3xl">
           Watch. Ask. <br /> Show up.
         </h1>
         <p className="font-sans max-w-xl text-base md:text-lg text-thistle-green/90">
           Work through the TIC videos at your own pace, send through your
-          questions, then confirm your spot at TIC night — where we come
-          together to talk it through.
+          questions, then confirm your spot at the TIC Gathering — where we
+          come together to talk it through.
         </p>
         <a
           href="#"

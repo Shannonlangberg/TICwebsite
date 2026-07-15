@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "TIC | Futures Church",
   description:
-    "Watch the TIC videos, submit your questions, and confirm your spot at TIC night.",
+    "Watch the TIC videos, submit your questions, and confirm your spot at the TIC Gathering.",
 };
 
 export default function RootLayout({
