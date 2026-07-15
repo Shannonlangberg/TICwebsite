@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+/* Futures Church brand fonts — from FUT002 Brand Guidelines v1.0 */
+@font-face {
+  font-family: "Rhymes Display";
+  src: url("/fonts/RhymesDisplay-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rhymes Display";
+  src: url("/fonts/RhymesDisplay-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gal Gothic";
+  src: url("/fonts/GalGothic-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gal Gothic";
+  src: url("/fonts/GalGothic-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gal Gothic";
+  src: url("/fonts/GalGothic-Italic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gal Gothic";
+  src: url("/fonts/GalGothic-LightItalic.otf") format("opentype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --background: #f4f2e3; /* thistle-green tint fallback, overridden per-section */
+  --foreground: #50482e; /* judge-gray */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Futures Church brand palette */
+  --color-copper: #c45236;
+  --color-orange: #ff8432;
+  --color-laser-lemon: #ffff5f;
+  --color-pink: #e444b9;
+  --color-sky-blue: #62b4ff;
+  --color-electric-violet: #5d1fec;
+  --color-ginger: #ac9b25;
+  --color-brown: #765020;
+  --color-thistle-green: #c5c6a4;
+  --color-judge-gray: #50482e;
+
+  --font-display: "Rhymes Display", "Times New Roman", serif;
+  --font-sans: "Gal Gothic", Arial, Helvetica, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 300;
+}
