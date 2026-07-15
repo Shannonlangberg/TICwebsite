@@ -6,9 +6,9 @@ export default function SiteFooter() {
     <footer className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-cream-2 px-8 py-6">
       <div className="flex items-center gap-2">
         <Image
-          src="/brand/Futures1.png"
+          src="/brand/Futures2.png"
           alt=""
-          width={70}
+          width={162}
           height={16}
           className="h-4 w-auto opacity-60"
         />

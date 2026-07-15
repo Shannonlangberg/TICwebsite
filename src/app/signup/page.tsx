@@ -81,7 +81,7 @@ export default function SignUpPage() {
 
   const Logo = (
     <Link href="/" className="flex items-center gap-2.5">
-      <Image src="/brand/Futures1.png" alt="Futures Church" width={90} height={20} className="h-6 w-auto" />
+      <Image src="/brand/Futures2.png" alt="Futures Church" width={202} height={20} className="h-6 w-auto" />
       <span style={{ fontFamily: "var(--font-label)", fontSize: 10, fontWeight: 700, letterSpacing: 2 }} className="text-brown">
         TIC
       </span>

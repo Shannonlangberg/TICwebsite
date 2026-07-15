@@ -62,11 +62,11 @@ export default async function AdminPage() {
       <aside className="flex w-56 flex-shrink-0 flex-col gap-6 bg-midnight px-3.5 py-6">
         <Link href="/" className="flex items-center gap-2.5 px-2">
           <Image
-            src="/brand/Futures1white.png"
+            src="/brand/Futures2white.png"
             alt="Futures Church"
-            width={80}
-            height={18}
-            className="h-[18px] w-auto"
+            width={141}
+            height={14}
+            className="h-[14px] w-auto"
           />
           <span
             className="text-[#F4F1E6]"

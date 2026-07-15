@@ -41,9 +41,9 @@ export default async function SiteNav({
     <header className="sticky top-0 z-10 flex items-center justify-between px-8 py-5 bg-cream border-b border-cream-2">
       <Link href="/" className="flex items-center gap-2.5">
         <Image
-          src="/brand/Futures1.png"
+          src="/brand/Futures2.png"
           alt="Futures Church"
-          width={90}
+          width={202}
           height={20}
           className="h-[22px] w-auto"
         />

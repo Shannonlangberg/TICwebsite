@@ -40,7 +40,7 @@ function LoginForm() {
   return (
     <main className="flex-1 flex flex-col items-center justify-center gap-10 bg-cream px-6 py-16">
       <Link href="/" className="flex items-center gap-2.5">
-        <Image src="/brand/Futures1.png" alt="Futures Church" width={90} height={20} className="h-6 w-auto" />
+        <Image src="/brand/Futures2.png" alt="Futures Church" width={202} height={20} className="h-6 w-auto" />
         <span style={{ fontFamily: "var(--font-label)", fontSize: 10, fontWeight: 700, letterSpacing: 2 }} className="text-brown">
           TIC
         </span>
