@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -11,20 +12,23 @@ export default function Home() {
           height={40}
           priority
         />
-        <nav className="font-sans text-sm tracking-wide">
-          <a href="#" className="hover:underline">
+        <nav className="font-sans text-sm tracking-wide flex gap-6">
+          <Link href="/login" className="hover:underline">
+            Log in
+          </Link>
+          <Link href="/signup" className="hover:underline">
             Sign up
-          </a>
+          </Link>
         </nav>
       </header>
 
       <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-24 gap-6">
-        <a
-          href="#"
+        <Link
+          href="/videos"
           className="uppercase tracking-[0.3em] text-sm text-orange font-sans hover:underline"
         >
           Learn more ↓
-        </a>
+        </Link>
         <h1 className="font-display text-5xl md:text-7xl leading-tight max-w-3xl">
           Watch. Ask. <br /> Show up.
         </h1>
@@ -33,12 +37,12 @@ export default function Home() {
           questions, then confirm your spot at the TIC Gathering — where we
           come together to talk it through.
         </p>
-        <a
-          href="#"
+        <Link
+          href="/signup"
           className="mt-4 inline-block rounded-full bg-orange px-8 py-3 font-sans font-semibold text-judge-gray hover:bg-laser-lemon transition-colors"
         >
           Sign up
-        </a>
+        </Link>
       </section>
 
       <footer className="px-8 py-6 text-center text-xs font-sans text-thistle-green/70">
