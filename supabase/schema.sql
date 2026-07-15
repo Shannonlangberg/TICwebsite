@@ -131,3 +131,17 @@ create policy "Users can submit their own questions"
 -- Note: the /admin area reads profiles, video_progress, and questions using the
 -- Supabase service_role key from a Netlify Function, which bypasses RLS entirely —
 -- that's expected and is how the shared admin password gate is meant to work here.
+
+-- 5. settings: single-row-per-key config store, e.g. which PCO signup the
+-- Gathering page currently links to. Only ever read/written via the
+-- service_role key from admin routes — no RLS policies needed since it's
+-- never queried from the client.
+create table if not exists public.settings (
+  key text primary key,
+  value text,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.settings enable row level security;
+-- Intentionally no policies — this table is only ever touched via the
+-- service_role key (bypasses RLS), never from a client-side query.

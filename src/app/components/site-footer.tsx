@@ -13,7 +13,7 @@ export default function SiteFooter() {
           className="h-4 w-auto opacity-60"
         />
         <span className="font-mono text-xs text-thistle-green">
-          Futures Church — TIC Platform
+          TIC Platform
         </span>
       </div>
       <Link href="/admin" className="font-sans text-xs text-thistle-green hover:text-copper transition-colors">
