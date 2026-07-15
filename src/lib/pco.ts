@@ -123,7 +123,7 @@ export async function listSignups(): Promise<PcoSignupSummary[]> {
   try {
     const res = await fetch(
       `${REGISTRATIONS_BASE}/signups` +
-        `?include=next_signup_time&order=-created_at&per_page=50` +
+        `?include=next_signup_time&order=-created_at&per_page=50&filter=unarchived` +
         `&fields[Signup]=name,open` +
         `&fields[SignupTime]=starts_at`,
       { headers, next: { revalidate: 120 } }
