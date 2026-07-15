@@ -37,7 +37,7 @@ export default async function AdminPage() {
   const { data: videos } = await supabase.from("videos").select("id");
   const { data: questions } = await supabase
     .from("questions")
-    .select("id, question_text, created_at, profiles(full_name)")
+    .select("id, question_text, created_at, profiles(full_name), videos(title)")
     .order("created_at", { ascending: false })
     .limit(5);
 
@@ -216,6 +216,7 @@ export default async function AdminPage() {
                   </p>
                   <p className="font-mono text-[11px] text-thistle-green">
                     {q.profiles?.full_name ?? "Anonymous"}
+                    {q.videos?.title && <> — {q.videos.title}</>}
                   </p>
                 </div>
               ))}
