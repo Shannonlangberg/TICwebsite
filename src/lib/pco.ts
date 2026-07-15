@@ -48,6 +48,11 @@ export type PcoSignupDetails = {
   locationName: string | null;
   locationAddress: string | null;
   registrationUrl: string;
+  // The actual event date/time (from the signup's next upcoming
+  // SignupTime), as opposed to openAt/closeAt which are the *registration
+  // window*, not the event itself.
+  eventStartsAt: string | null;
+  eventEndsAt: string | null;
 };
 
 export async function getSignupDetails(
@@ -58,7 +63,10 @@ export async function getSignupDetails(
 
   try {
     const res = await fetch(
-      `${REGISTRATIONS_BASE}/signups/${signupId}?include=signup_location&fields[Signup]=name,open_at,close_at,open,at_maximum_capacity,new_registration_url`,
+      `${REGISTRATIONS_BASE}/signups/${signupId}` +
+        `?include=signup_location,next_signup_time` +
+        `&fields[Signup]=name,open_at,close_at,open,at_maximum_capacity,new_registration_url` +
+        `&fields[SignupTime]=starts_at,ends_at`,
       { headers, next: { revalidate: 300 } }
     );
 
@@ -66,9 +74,14 @@ export async function getSignupDetails(
 
     const json = await res.json();
     const attrs = json?.data?.attributes ?? {};
-    const location = json?.included?.find(
-      (i: { type: string }) => i.type === "SignupLocation"
-    )?.attributes;
+    const included: Array<{ type: string; attributes: Record<string, unknown> }> =
+      json?.included ?? [];
+    const location = included.find((i) => i.type === "SignupLocation")?.attributes as
+      | { name?: string; address_data?: { line_1?: string; city?: string; state?: string } }
+      | undefined;
+    const signupTime = included.find((i) => i.type === "SignupTime")?.attributes as
+      | { starts_at?: string; ends_at?: string }
+      | undefined;
 
     return {
       name: attrs.name ?? null,
@@ -85,9 +98,62 @@ export async function getSignupDetails(
       registrationUrl:
         attrs.new_registration_url ??
         `https://futuresaustralia.churchcenter.com/registrations/signups/${signupId}`,
+      eventStartsAt: (signupTime?.starts_at as string) ?? null,
+      eventEndsAt: (signupTime?.ends_at as string) ?? null,
     };
   } catch {
     return null;
+  }
+}
+
+export type PcoSignupSummary = {
+  id: string;
+  name: string;
+  open: boolean;
+  eventStartsAt: string | null;
+};
+
+// Lists signups so an admin can pick which one the Gathering page should
+// link to. Ordered newest-created first so the most likely candidate (the
+// event just set up in PCO) is near the top.
+export async function listSignups(): Promise<PcoSignupSummary[]> {
+  const headers = authedHeaders();
+  if (!headers) return [];
+
+  try {
+    const res = await fetch(
+      `${REGISTRATIONS_BASE}/signups` +
+        `?include=next_signup_time&order=-created_at&per_page=50` +
+        `&fields[Signup]=name,open` +
+        `&fields[SignupTime]=starts_at`,
+      { headers, next: { revalidate: 120 } }
+    );
+    if (!res.ok) return [];
+
+    const json = await res.json();
+    const included: Array<{ id: string; type: string; attributes: Record<string, unknown> }> =
+      json?.included ?? [];
+
+    return (json?.data ?? []).map(
+      (s: {
+        id: string;
+        attributes: { name: string; open: boolean };
+        relationships?: { next_signup_time?: { data?: { id: string } | null } };
+      }) => {
+        const timeId = s.relationships?.next_signup_time?.data?.id;
+        const time = timeId
+          ? included.find((i) => i.type === "SignupTime" && i.id === timeId)
+          : null;
+        return {
+          id: s.id,
+          name: s.attributes.name,
+          open: Boolean(s.attributes.open),
+          eventStartsAt: (time?.attributes?.starts_at as string) ?? null,
+        };
+      }
+    );
+  } catch {
+    return [];
   }
 }
 

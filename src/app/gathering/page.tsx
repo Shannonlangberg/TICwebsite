@@ -2,24 +2,47 @@ import { Calendar, MapPin } from "lucide-react";
 import SiteNav from "../components/site-nav";
 import SiteFooter from "../components/site-footer";
 import { getSignupDetails } from "@/lib/pco";
+import { getSetting, GATHERING_SIGNUP_ID_KEY } from "@/lib/settings";
 
-const SIGNUP_ID = "3754960";
+// Default signup — used until an admin picks a different PCO event from
+// /admin/gathering, or if the live API call fails.
+const DEFAULT_SIGNUP_ID = "3754960";
 
-// Fallback values (confirmed with Shannon 15 Jul 2026) — used until
-// PCO_APPLICATION_ID is set, or if the live API call fails.
 const FALLBACK = {
   date: "Sun 30 Aug, 1:30 PM",
   location: "Copper Coast Campus, 4716 Copper Coast Hwy, Kadina SA 5554",
-  url: `https://futuresaustralia.churchcenter.com/registrations/signups/${SIGNUP_ID}`,
+  url: `https://futuresaustralia.churchcenter.com/registrations/signups/${DEFAULT_SIGNUP_ID}`,
 };
 
-export default async function GatheringPage() {
-  const live = await getSignupDetails(SIGNUP_ID);
+function formatEventDate(iso: string | null): string | null {
+  if (!iso) return null;
+  try {
+    const d = new Date(iso);
+    const datePart = new Intl.DateTimeFormat("en-AU", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      timeZone: "Australia/Adelaide",
+    }).format(d);
+    const timePart = new Intl.DateTimeFormat("en-AU", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "Australia/Adelaide",
+    }).format(d);
+    return `${datePart}, ${timePart}`;
+  } catch {
+    return null;
+  }
+}
 
-  // PCO's public API doesn't expose the event's own start time (only
-  // registration open/close times), so the date/time stays the confirmed
-  // fallback regardless of whether the live call succeeds.
-  const dateLabel = FALLBACK.date;
+export default async function GatheringPage() {
+  const signupId = (await getSetting(GATHERING_SIGNUP_ID_KEY)) || DEFAULT_SIGNUP_ID;
+  const live = await getSignupDetails(signupId);
+
+  // Prefer the live event start time (from the signup's next_signup_time)
+  // over the hardcoded fallback — falls back if PCO doesn't have one set.
+  const dateLabel = formatEventDate(live?.eventStartsAt ?? null) ?? FALLBACK.date;
 
   const pcoUrl = live?.registrationUrl ?? FALLBACK.url;
   const locationLabel = live?.locationName

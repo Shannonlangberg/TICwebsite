@@ -89,7 +89,7 @@ export default async function AdminPage() {
             <Film className="h-4 w-4" /> Sessions
           </Link>
           <Link
-            href="/gathering"
+            href="/admin/gathering"
             className="flex items-center gap-2.5 rounded-lg px-3.5 py-2.5 font-sans text-sm text-[#F4F1E6]/65 transition-colors hover:bg-white/5 hover:text-[#F4F1E6]"
           >
             <Calendar className="h-4 w-4" /> Gathering
