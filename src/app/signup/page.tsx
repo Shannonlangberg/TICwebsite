@@ -59,9 +59,9 @@ export default function SignUpPage() {
       return;
     }
 
-    // Sync to Planning Center as a "New Christian" — best-effort, never
-    // blocks the sign-up flow itself if it fails.
-    if (isNewChristian && data.user) {
+    // Sync every sign-up to Heartbeat (and to Planning Center when they're a
+    // new Christian) — best-effort, never blocks the sign-up flow if it fails.
+    if (data.user) {
       const [firstName, ...rest] = fullName.trim().split(" ");
       fetch("/api/signup/sync-pco", {
         method: "POST",
@@ -75,6 +75,7 @@ export default function SignUpPage() {
           gender: gender || null,
           campusId: campusId || null,
           campusName: campusName || null,
+          isNewChristian,
         }),
       }).catch(() => null);
     }
