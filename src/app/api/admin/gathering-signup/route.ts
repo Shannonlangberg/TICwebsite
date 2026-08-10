@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
-import { listSignups, getSignupDetails } from "@/lib/pco";
+import { listSignups, getSignupDetails, listAttendees } from "@/lib/pco";
 import { getSetting, setSetting, GATHERING_SIGNUP_ID_KEY } from "@/lib/settings";
 
 async function requireAdmin() {
@@ -20,9 +20,12 @@ export async function GET() {
     getSetting(GATHERING_SIGNUP_ID_KEY),
   ]);
 
-  const selected = selectedId ? await getSignupDetails(selectedId) : null;
+  const [selected, registrants] = await Promise.all([
+    selectedId ? getSignupDetails(selectedId) : Promise.resolve(null),
+    selectedId ? listAttendees(selectedId) : Promise.resolve([]),
+  ]);
 
-  return NextResponse.json({ signups, selectedId, selected });
+  return NextResponse.json({ signups, selectedId, selected, registrants });
 }
 
 // POST { signupId }: sets which PCO signup the Gathering page links to.

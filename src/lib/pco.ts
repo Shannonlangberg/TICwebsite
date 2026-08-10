@@ -160,6 +160,55 @@ export async function listSignups(): Promise<PcoSignupSummary[]> {
   }
 }
 
+export type PcoAttendee = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  waitlisted: boolean;
+  active: boolean;
+  createdAt: string | null;
+};
+
+// Registrants for a signup — used by the admin Gathering panel so a CP can
+// see who's coming without leaving the TIC admin.
+//
+// NOT verified against a live signup yet — Attendee is documented as a
+// read-only resource under Registrations v2 (see the file-header note), but
+// the exact field names below are my best read of PCO's docs, not a tested
+// response. If this comes back empty or errors on a signup with known
+// registrants, check the real payload shape in PCO's API explorer before
+// assuming the endpoint itself is wrong.
+export async function listAttendees(signupId: string): Promise<PcoAttendee[]> {
+  const headers = authedHeaders();
+  if (!headers) return [];
+
+  try {
+    const res = await fetch(
+      `${REGISTRATIONS_BASE}/signups/${signupId}/attendees` +
+        `?per_page=100` +
+        `&fields[Attendee]=first_name,last_name,email,waitlisted,active,created_at`,
+      { headers, next: { revalidate: 60 } }
+    );
+    if (!res.ok) return [];
+
+    const json = await res.json();
+    return (json?.data ?? []).map(
+      (a: { id: string; attributes: Record<string, unknown> }) => ({
+        id: a.id,
+        firstName: (a.attributes.first_name as string) ?? null,
+        lastName: (a.attributes.last_name as string) ?? null,
+        email: (a.attributes.email as string) ?? null,
+        waitlisted: Boolean(a.attributes.waitlisted),
+        active: a.attributes.active !== false,
+        createdAt: (a.attributes.created_at as string) ?? null,
+      })
+    );
+  } catch {
+    return [];
+  }
+}
+
 // ---------------------------------------------------------------------------
 // People API (writable)
 // ---------------------------------------------------------------------------

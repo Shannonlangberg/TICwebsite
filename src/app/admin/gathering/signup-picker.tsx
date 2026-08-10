@@ -19,10 +19,21 @@ type PcoSignupDetails = {
   registrationUrl: string;
 };
 
+type PcoAttendee = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  waitlisted: boolean;
+  active: boolean;
+  createdAt: string | null;
+};
+
 type ApiResponse = {
   signups: PcoSignupSummary[];
   selectedId: string | null;
   selected: PcoSignupDetails | null;
+  registrants: PcoAttendee[];
 };
 
 function formatStarts(iso: string | null) {
@@ -193,6 +204,52 @@ export default function SignupPicker() {
                   : "Closed"}
             </p>
           </div>
+        </div>
+      )}
+
+      {data.selectedId && (
+        <div className="rounded-xl bg-white p-6 shadow-[0_1px_5px_rgba(0,0,0,0.06)]">
+          <p className="label-caps mb-1">
+            Who&rsquo;s coming{data.registrants.length > 0 ? ` · ${data.registrants.length}` : ""}
+          </p>
+          <p className="mb-4 font-sans text-sm text-thistle-green">
+            Pulled live from Planning Center — registration itself still happens on PCO&rsquo;s hosted page.
+          </p>
+
+          {data.registrants.length === 0 ? (
+            <p className="font-sans text-sm text-thistle-green">
+              No registrants yet, or PCO didn&rsquo;t return any for this event.
+            </p>
+          ) : (
+            <table className="w-full border-collapse font-sans text-sm">
+              <thead>
+                <tr className="text-left">
+                  <th className="border-b border-cream-2 pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-thistle-green">
+                    Name
+                  </th>
+                  <th className="border-b border-cream-2 pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-thistle-green">
+                    Email
+                  </th>
+                  <th className="border-b border-cream-2 pb-2 text-[11px] font-semibold uppercase tracking-wide text-thistle-green">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.registrants.map((r) => (
+                  <tr key={r.id}>
+                    <td className="border-b border-cream-2 py-2 pr-4 text-brown">
+                      {[r.firstName, r.lastName].filter(Boolean).join(" ") || "—"}
+                    </td>
+                    <td className="border-b border-cream-2 py-2 pr-4 text-brown">{r.email ?? "—"}</td>
+                    <td className="border-b border-cream-2 py-2 text-brown">
+                      {r.waitlisted ? "Waitlisted" : r.active ? "Registered" : "Cancelled"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       )}
     </div>
