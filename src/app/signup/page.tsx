@@ -59,21 +59,20 @@ export default function SignUpPage() {
       return;
     }
 
-    // Sync every sign-up to Heartbeat (and to Planning Center when they're a
-    // new Christian) — best-effort, never blocks the sign-up flow if it fails.
+    // Sync every sign-up to Heartbeat — best-effort, never blocks the sign-up
+    // flow if it fails. No longer pushes to Planning Center (dropped
+    // 2026-08-10 — TIC signups stay local + Heartbeat only now).
     if (data.user) {
       const [firstName, ...rest] = fullName.trim().split(" ");
-      fetch("/api/signup/sync-pco", {
+      fetch("/api/signup/sync-heartbeat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: data.user.id,
           firstName: firstName || fullName,
           lastName: rest.join(" ") || "",
           email,
           phone: phone || null,
           gender: gender || null,
-          campusId: campusId || null,
           campusName: campusName || null,
           isNewChristian,
         }),

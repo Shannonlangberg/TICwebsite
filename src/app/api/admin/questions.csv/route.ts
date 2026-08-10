@@ -1,5 +1,5 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 function csvEscape(value: string) {
@@ -10,11 +10,8 @@ function csvEscape(value: string) {
 }
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const isAdmin =
-    cookieStore.get("tic_admin")?.value === process.env.ADMIN_PASSWORD;
-
-  if (!isAdmin) {
+  const check = await requireAdmin();
+  if (!check.isAdmin) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

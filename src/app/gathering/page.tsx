@@ -1,21 +1,10 @@
 import { Calendar, MapPin } from "lucide-react";
 import SiteNav from "../components/site-nav";
 import SiteFooter from "../components/site-footer";
-import { getSignupDetails } from "@/lib/pco";
-import { getSetting, GATHERING_SIGNUP_ID_KEY } from "@/lib/settings";
+import { createAdminClient } from "@/lib/supabase/admin";
+import RsvpForm from "./RsvpForm";
 
-// Default signup — used until an admin picks a different PCO event from
-// /admin/gathering, or if the live API call fails.
-const DEFAULT_SIGNUP_ID = "3754960";
-
-const FALLBACK = {
-  date: "Sun 30 Aug, 1:30 PM",
-  location: "Copper Coast Campus, 4716 Copper Coast Hwy, Kadina SA 5554",
-  url: `https://futuresaustralia.churchcenter.com/registrations/events/${DEFAULT_SIGNUP_ID}`,
-};
-
-function formatEventDate(iso: string | null): string | null {
-  if (!iso) return null;
+function formatEventDate(iso: string): string {
   try {
     const d = new Date(iso);
     const datePart = new Intl.DateTimeFormat("en-AU", {
@@ -32,24 +21,33 @@ function formatEventDate(iso: string | null): string | null {
     }).format(d);
     return `${datePart}, ${timePart}`;
   } catch {
-    return null;
+    return iso;
   }
 }
 
 export default async function GatheringPage() {
-  const signupId = (await getSetting(GATHERING_SIGNUP_ID_KEY)) || DEFAULT_SIGNUP_ID;
-  const live = await getSignupDetails(signupId);
+  // Public read via service_role — events has an "anyone can view" RLS
+  // policy too, but the admin client keeps this consistent with the rest
+  // of the app's data-access convention rather than exposing the anon key
+  // to a broader query surface.
+  const supabase = createAdminClient();
+  const { data: event } = await supabase
+    .from("events")
+    .select("id, title, description, starts_at, location, capacity")
+    .gte("starts_at", new Date().toISOString())
+    .order("starts_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
 
-  // Prefer the live event start time (from the signup's next_signup_time)
-  // over the hardcoded fallback — falls back if PCO doesn't have one set.
-  const dateLabel = formatEventDate(live?.eventStartsAt ?? null) ?? FALLBACK.date;
-
-  const pcoUrl = live?.registrationUrl ?? FALLBACK.url;
-  const locationLabel = live?.locationName
-    ? [live.locationName, live.locationAddress].filter(Boolean).join(" — ")
-    : FALLBACK.location;
-  const closedNotice = live && !live.open;
-  const fullNotice = live?.atMaximumCapacity;
+  let rsvpCount = 0;
+  if (event) {
+    const { count } = await supabase
+      .from("event_rsvps")
+      .select("id", { count: "exact", head: true })
+      .eq("event_id", event.id);
+    rsvpCount = count ?? 0;
+  }
+  const atCapacity = event?.capacity != null && rsvpCount >= event.capacity;
 
   return (
     <main className="flex-1 flex flex-col bg-cream">
@@ -62,37 +60,44 @@ export default async function GatheringPage() {
         </h1>
         <p className="max-w-xl font-sans text-base text-white/90 md:text-lg">
           Once you&rsquo;ve worked through the videos, come talk it all
-          through with the group in person. Grab your spot below — we&rsquo;ll
-          see you there.
+          through with the group in person.
         </p>
 
-        <div className="my-3 flex flex-wrap justify-center gap-7 rounded-xl bg-white/10 px-7 py-5">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            <span className="font-mono text-[13px]">{dateLabel}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4" />
-            <span className="font-mono text-[13px]">{locationLabel}</span>
-          </div>
-        </div>
+        {event ? (
+          <>
+            <div className="my-3 flex flex-wrap justify-center gap-7 rounded-xl bg-white/10 px-7 py-5">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                <span className="font-mono text-[13px]">{formatEventDate(event.starts_at)}</span>
+              </div>
+              {event.location && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  <span className="font-mono text-[13px]">{event.location}</span>
+                </div>
+              )}
+            </div>
 
-        {(closedNotice || fullNotice) && (
-          <p className="max-w-md font-sans text-sm text-white/80">
-            {fullNotice
-              ? "This gathering is currently at capacity — reach out to us directly if you'd like to be added to the waitlist."
-              : "Registration for this gathering is currently closed."}
+            {event.description && (
+              <p className="max-w-md font-sans text-sm text-white/85">{event.description}</p>
+            )}
+
+            <div className="w-full max-w-sm rounded-xl bg-white p-6 text-left shadow-lg">
+              {atCapacity ? (
+                <p className="font-sans text-sm text-brown">
+                  This gathering is currently at capacity — reach out to us directly if you&rsquo;d
+                  like to be added to the waitlist.
+                </p>
+              ) : (
+                <RsvpForm eventId={event.id} />
+              )}
+            </div>
+          </>
+        ) : (
+          <p className="max-w-md font-sans text-sm text-white/85">
+            No Gathering scheduled yet — check back soon.
           </p>
         )}
-
-        <a
-          href={pcoUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-full bg-white px-8 py-3.5 font-sans text-[15px] font-semibold text-copper transition-colors hover:bg-cream-2"
-        >
-          Register your spot
-        </a>
       </div>
 
       <SiteFooter />

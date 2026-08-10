@@ -1,32 +1,20 @@
-import { cookies } from "next/headers";
-import Link from "next/link";
-import Image from "next/image";
-import {
-  LayoutDashboard,
-  Film,
-  Calendar,
-  LogOut,
-  Download,
-} from "lucide-react";
+import { redirect } from "next/navigation";
+import { Download } from "lucide-react";
+import { requireAdmin } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
-import AdminLoginForm from "./login-form";
+import { AdminSidebar } from "./AdminSidebar";
+import { NotAdmin } from "./AdminGate";
 
 export default async function AdminPage() {
-  const cookieStore = await cookies();
-  const isAdmin =
-    cookieStore.get("tic_admin")?.value === process.env.ADMIN_PASSWORD;
-
-  if (!isAdmin) {
-    return <AdminLoginForm />;
-  }
+  const check = await requireAdmin();
+  if (!check.signedIn) redirect("/login?next=/admin");
+  if (!check.isAdmin) return <NotAdmin email={check.user.email} />;
 
   const supabase = createAdminClient();
 
   const { data: profiles } = await supabase
     .from("profiles")
-    .select(
-      "id, full_name, email, created_at, is_new_christian, pco_campus_name, pco_person_id"
-    )
+    .select("id, full_name, email, created_at, is_new_christian")
     .order("created_at", { ascending: false });
 
   const { data: progress } = await supabase
@@ -59,49 +47,7 @@ export default async function AdminPage() {
 
   return (
     <div className="flex min-h-full flex-1 bg-cream">
-      <aside className="flex w-56 flex-shrink-0 flex-col gap-6 bg-midnight px-3.5 py-6">
-        <Link href="/" className="flex items-center gap-2.5 px-2">
-          <Image
-            src="/brand/Futures2white.png"
-            alt="Futures Church"
-            width={141}
-            height={14}
-            className="h-[14px] w-auto"
-          />
-          <span
-            className="text-[#F4F1E6]"
-            style={{ fontFamily: "var(--font-label)", fontSize: 10, fontWeight: 700, letterSpacing: 2 }}
-          >
-            TIC Admin
-          </span>
-        </Link>
-        <nav className="flex flex-col gap-0.5">
-          <Link
-            href="/admin"
-            className="flex items-center gap-2.5 rounded-lg border-l-2 border-copper bg-copper/15 px-3.5 py-2.5 pl-3 font-sans text-sm text-[#F4F1E6]"
-          >
-            <LayoutDashboard className="h-4 w-4" /> Dashboard
-          </Link>
-          <Link
-            href="/videos"
-            className="flex items-center gap-2.5 rounded-lg px-3.5 py-2.5 font-sans text-sm text-[#F4F1E6]/65 transition-colors hover:bg-white/5 hover:text-[#F4F1E6]"
-          >
-            <Film className="h-4 w-4" /> Sessions
-          </Link>
-          <Link
-            href="/admin/gathering"
-            className="flex items-center gap-2.5 rounded-lg px-3.5 py-2.5 font-sans text-sm text-[#F4F1E6]/65 transition-colors hover:bg-white/5 hover:text-[#F4F1E6]"
-          >
-            <Calendar className="h-4 w-4" /> Gathering
-          </Link>
-          <Link
-            href="/"
-            className="flex items-center gap-2.5 rounded-lg px-3.5 py-2.5 font-sans text-sm text-[#F4F1E6]/65 transition-colors hover:bg-white/5 hover:text-[#F4F1E6]"
-          >
-            <LogOut className="h-4 w-4" /> Exit admin
-          </Link>
-        </nav>
-      </aside>
+      <AdminSidebar active="/admin" />
 
       <main className="flex-1 px-10 py-9">
         <div className="mb-7 flex flex-wrap items-center justify-between gap-3">
@@ -129,7 +75,7 @@ export default async function AdminPage() {
           <div className="rounded-xl bg-white p-5 shadow-[0_1px_5px_rgba(0,0,0,0.06)]">
             <p className="label-caps mb-2 !text-teal">Avg. sessions watched</p>
             <p className="font-mono text-[28px] text-midnight">
-              {avgWatched} / {totalVideos || 6}
+              {avgWatched} / {totalVideos || 9}
             </p>
           </div>
           <div className="rounded-xl bg-white p-5 shadow-[0_1px_5px_rgba(0,0,0,0.06)]">
@@ -180,17 +126,7 @@ export default async function AdminPage() {
                     </td>
                     <td className="border-b border-cream-2 px-5 py-3 text-brown">
                       {p.is_new_christian ? (
-                        <span className="inline-flex items-center gap-1.5">
-                          <span className="label-caps !text-olive">Yes</span>
-                          {p.pco_campus_name && (
-                            <span className="text-thistle-green">— {p.pco_campus_name}</span>
-                          )}
-                          {!p.pco_person_id && (
-                            <span title="Not yet synced to Planning Center" className="text-copper">
-                              (unsynced)
-                            </span>
-                          )}
-                        </span>
+                        <span className="label-caps !text-olive">Yes</span>
                       ) : (
                         "—"
                       )}
