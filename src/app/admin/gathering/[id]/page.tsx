@@ -6,22 +6,23 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { AdminSidebar } from "../../AdminSidebar";
 import { NotAdmin } from "../../AdminGate";
 
-export default async function EventDetailPage({ params }: { params: { id: string } }) {
+export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const check = await requireAdmin();
-  if (!check.signedIn) redirect(`/login?next=/admin/gathering/${params.id}`);
+  if (!check.signedIn) redirect(`/login?next=/admin/gathering/${id}`);
   if (!check.isAdmin) return <NotAdmin email={check.user.email} />;
 
   const supabase = createAdminClient();
   const { data: event } = await supabase
     .from("events")
     .select("id, title, description, starts_at, location, capacity")
-    .eq("id", params.id)
+    .eq("id", id)
     .maybeSingle();
 
   const { data: rsvps } = await supabase
     .from("event_rsvps")
     .select("id, full_name, email, phone, created_at")
-    .eq("event_id", params.id)
+    .eq("event_id", id)
     .order("created_at", { ascending: true });
 
   return (
